@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical"
+    android:longClickable="true"
+    android:backgroundTint="@color/white">
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:backgroundTint="@color/white"
+        android:layout_height="wrap_content">
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:clickable="false"
+            android:focusable="false"
+            app:menu="@menu/listnhanitem"
+            android:background="@drawable/itemnhanborder"
+            app:navigationIcon="@drawable/baseline_label_24"
+            android:layout_height="wrap_content">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <EditText
+                    android:id="@+id/tenNhan"
+                    android:background="@drawable/tennhan"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:focusableInTouchMode="true"
+                    android:inputType="text"
+                    android:onClick="onEditTextClick"
+                    android:imeOptions="actionDone"
+                    android:text="Test">
+
+                </EditText>
+            </RelativeLayout>
+        </com.google.android.material.appbar.MaterialToolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+</RelativeLayout>

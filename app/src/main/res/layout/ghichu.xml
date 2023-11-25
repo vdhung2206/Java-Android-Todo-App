@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/itemborder"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical"
+    android:paddingBottom="12dp"
+    android:colorControlHighlight="@color/md_theme_light_onSurface"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:longClickable="true"
+    android:layout_marginBottom="12dp"
+    android:layout_marginRight="8dp"
+    android:layout_marginLeft="8dp"
+    android:paddingTop="12dp">
+
+    <TextView
+        android:id="@+id/tieuDe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#131313"
+        android:textSize="16dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/noiDung"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="15"
+        android:ellipsize="end"
+        android:layout_below="@id/tieuDe" />
+    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/nhan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:flexWrap="wrap"
+        app:justifyContent="flex_start"
+        android:layout_below="@id/noiDung" >
+
+    </com.google.android.flexbox.FlexboxLayout>
+</RelativeLayout>

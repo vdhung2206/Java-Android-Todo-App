@@ -1,0 +1,27 @@
+<!-- background_selected.xml -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#1FB8CCFB">
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/md_theme_light_onSurface" />
+            <corners android:radius="10dp"/>
+        </shape>
+    </item>
+    <item>
+        <selector>
+            <item android:state_selected="true">
+                <shape android:shape="rectangle">
+                    <stroke android:color="#1C47C6" android:width="3dp"/>
+                    <corners android:radius="10dp"/>
+                </shape>
+            </item>
+            <item>
+                <shape android:shape="rectangle">
+                    <stroke android:color="#C5C5C5" android:width="1dp"/>
+                    <corners android:radius="10dp"/>
+                </shape>
+            </item>
+        </selector>
+
+    </item>
+</ripple>

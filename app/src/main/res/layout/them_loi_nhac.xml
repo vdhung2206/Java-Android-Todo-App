@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:backgroundTint="@color/white"
+    android:padding="16dp">
+
+    <!-- Tiêu đề -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Thêm lời nhắc"
+        android:id="@+id/dialogTitle"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:layout_gravity="start"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Combobox chọn ngày -->
+    <com.example.todoapp.MySpinner
+        android:id="@+id/spinnerDate"
+        style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+    <!-- Combobox chọn giờ -->
+    <com.example.todoapp.MySpinner
+        android:id="@+id/spinnerTime"
+        android:paddingBottom="20dp"
+        style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+
+    <!-- Combobox chọn lặp lại hoặc không -->
+    <com.example.todoapp.MySpinner
+        android:id="@+id/spinnerRepeat"
+        style="@style/Base.Widget.AppCompat.Spinner.Underlined"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+
+    <!-- Button thêm lời nhắc -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:gravity="end">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Xóa"
+            android:textSize="14dp"
+            android:textColor="#1F54DC"
+            android:visibility="gone"
+            android:textAllCaps="false"
+            android:background="@drawable/custom_button2"
+            android:id="@+id/buttonDelete" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Hủy"
+            android:textSize="14dp"
+            android:textColor="#1F54DC"
+            android:textAllCaps="false"
+            android:background="@drawable/custom_button2"
+            android:id="@+id/buttonCancel" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:textAllCaps="false"
+            android:background="@drawable/custom_button1"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            android:text="Lưu"
+            android:id="@+id/buttonSave" />
+    </LinearLayout>
+</LinearLayout>

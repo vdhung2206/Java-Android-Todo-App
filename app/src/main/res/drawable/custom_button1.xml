@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#A3C8FF">
+    <item>
+        <shape xmlns:android="http://schemas.android.com/apk/res/android">
+            <solid android:color="#1F54DC"/> <!-- Màu nền của viền tròn -->
+            <corners android:radius="100dp"/> <!-- Bán kính của viền tròn (sử dụng dp để đảm bảo nó tỷ lệ trên mọi thiết bị) -->
+            <stroke android:width="0dp"/> <!-- Màu viền và độ dày của viền (tuỳ chỉnh) -->
+        </shape>
+    </item>
+</ripple>
