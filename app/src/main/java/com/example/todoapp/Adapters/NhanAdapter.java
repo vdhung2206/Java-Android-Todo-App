@@ -203,7 +203,7 @@ public class NhanAdapter extends  RecyclerView.Adapter<NhanAdapter.myViewHolder>
                     tenNhan.clearFocus();
                 });
             } else {
-                toolbar.setNavigationIcon(R.drawable.baseline_delete_24);
+                toolbar.setNavigationIcon(R.drawable.outline_delete_24);
                 toolbar.setNavigationOnClickListener(v -> {
                     nhanService.xoaNhan(arrayList.get(getAdapterPosition()));
                     arrayList.remove(getAdapterPosition());
@@ -221,7 +221,7 @@ public class NhanAdapter extends  RecyclerView.Adapter<NhanAdapter.myViewHolder>
                     listener.onItemClick(getAdapterPosition());
                 });
             } else {
-                toolbar.setNavigationIcon(R.drawable.baseline_label_24);
+                toolbar.setNavigationIcon(R.drawable.outline_label_24);
                 toolbar.setNavigationOnClickListener(null);
             }
         }

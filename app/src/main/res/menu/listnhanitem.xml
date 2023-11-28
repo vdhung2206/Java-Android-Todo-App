@@ -4,7 +4,7 @@
 
     <item android:title="Logout"
         android:id="@+id/edit"
-        android:icon="@drawable/baseline_edit_24"
+        android:icon="@drawable/outline_edit_24"
         app:showAsAction="ifRoom"
         />
 </menu>

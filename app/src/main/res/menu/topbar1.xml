@@ -1,3 +1,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_pin"
+        android:title="Ghim"
+        android:icon="@drawable/outline_push_pin_24"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_notify"
+        android:title="Đặt lời nhắc"
+        android:icon="@drawable/outline_notification_add_24"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/storage"
+        android:title="Lưu trữ"
+        android:icon="@drawable/outline_archive_24"
+        app:showAsAction="always" />
 </menu>

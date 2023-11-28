@@ -18,7 +18,7 @@
         android:layout_marginEnd="16dp"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
-        android:src="@drawable/baseline_label_24" />
+        android:src="@drawable/outline_label_24" />
     <TextView
         android:id="@+id/tenNhan"
         android:layout_width="match_parent"

@@ -390,13 +390,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Menu navigationMenu = navigationView.getMenu();
 
         SubMenu parentMenu = navigationMenu.findItem(R.id.menuNhan).getSubMenu();
+        parentMenu.clear();
+        int lastPosition = 0;
         if (listNhan.size() > 0) {
+            Toast.makeText(this, "2", Toast.LENGTH_SHORT).show();
             for (Nhan nhan : listNhan) {
                 parentMenu.add(Menu.NONE, Menu.NONE, 1, nhan.getTenNhan());
             }
+            lastPosition = parentMenu.size();
             for (int i = 0; i < listNhan.size(); i++) {
                 MenuItem menuItemMucMoi = parentMenu.getItem(i);
-                menuItemMucMoi.setIcon(R.drawable.baseline_label_24);
+                menuItemMucMoi.setIcon(R.drawable.outline_label_24);
                 final String tenNhan = listNhan.get(i).getTenNhan();
                 menuItemMucMoi.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
@@ -411,10 +415,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     menuItemMucMoi.setTitle(truncatedText);
                 }
             }
-        } else {
         }
-        MenuItem newItem = navigationMenu.add(Menu.NONE, Menu.NONE, Menu.NONE, "Thêm nhãn");
-        newItem.setIcon(R.drawable.baseline_add_24); // Đặt icon nếu cần
+        MenuItem newItem = parentMenu.add(Menu.NONE, Menu.NONE, lastPosition, "Quản lý nhãn");
+        newItem.setIcon(R.drawable.outline_edit_24); // Đặt icon nếu cần
         newItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -438,7 +441,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Đặt icon và sự kiện onClick cho các mục menu
         for (int i = 0; i < listNhan.size(); i++) {
             MenuItem menuItemMucMoi = parentMenu.getItem(i);
-            menuItemMucMoi.setIcon(R.drawable.baseline_label_24);
+            menuItemMucMoi.setIcon(R.drawable.outline_label_24);
             final String tenNhan = listNhan.get(i).getTenNhan();
             menuItemMucMoi.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
@@ -453,6 +456,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 menuItemMucMoi.setTitle(truncatedText);
             }
         }
+        MenuItem newItem = parentMenu.add(Menu.NONE, Menu.NONE, Menu.NONE, "Quản lý nhãn");
+        newItem.setIcon(R.drawable.outline_edit_24); // Đặt icon nếu cần
+        newItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                // Gọi đến trang editNhan ở đây
+                Intent intent = new Intent(MainActivity.this, ChinhSuaNhanActivity.class);
+                editNhanLauncher.launch(intent);
+                return true; // Đánh dấu rằng sự kiện đã được xử lý
+            }
+        });
     }
 
     private int getMenuItemTextWidth(MenuItem menuItem) {

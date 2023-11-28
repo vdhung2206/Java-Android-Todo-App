@@ -19,7 +19,7 @@
             android:focusable="false"
             app:menu="@menu/listnhanitem"
             android:background="@drawable/itemnhanborder"
-            app:navigationIcon="@drawable/baseline_label_24"
+            app:navigationIcon="@drawable/outline_label_24"
             android:layout_height="wrap_content">
             <RelativeLayout
                 android:layout_width="match_parent"

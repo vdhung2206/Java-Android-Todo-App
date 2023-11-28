@@ -4,12 +4,22 @@
     <item
         android:id="@+id/home"
         android:title="Home"
-        android:icon="@drawable/baseline_check_box_24"
+        android:icon="@drawable/outline_check_box_24"
         app:showAsAction="always"
         />
     <item
+        android:id="@+id/brush"
+        android:title="Shorts"
+        android:icon="@drawable/outline_brush_24"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/voice"
+        android:title="Shorts"
+        android:icon="@drawable/outline_keyboard_voice_24"
+        app:showAsAction="always"/>
+    <item
         android:id="@+id/shorts"
         android:title="Shorts"
-        android:icon="@drawable/baseline_image_24"
+        android:icon="@drawable/outline_image_24"
         app:showAsAction="always"/>
 </menu>

@@ -4,12 +4,12 @@
     <item
         android:id="@+id/add"
         android:title=""
-        android:icon="@drawable/baseline_add_box_24"
+        android:icon="@drawable/outline_add_box_24"
         app:showAsAction="always"
         />
     <item
         android:id="@+id/label"
         android:title="Nhãn"
-        android:icon="@drawable/baseline_label_24"
+        android:icon="@drawable/outline_label_24"
         app:showAsAction="always" />
 </menu>
