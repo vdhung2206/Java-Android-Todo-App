@@ -92,7 +92,6 @@ public class FirstFragment extends Fragment {
                                     // Truy cập FirstFragment và gọi phương thức addNewNote
                                     FirstFragment firstFragment = (FirstFragment) getParentFragmentManager().findFragmentById(R.id.mainFrame);
                                     if (firstFragment != null) {
-                                        ArrayList a = (ArrayList) arrayList;
                                         firstFragment.editNote(newNote, (result.getData().getIntExtra("position", -1)));
                                     }
                                 }
@@ -315,7 +314,6 @@ public class FirstFragment extends Fragment {
         if (newNote != null) {
             // Thêm ghi chú mới vào danh sách và cập nhật RecyclerView
             arrayList.set(position, newNote);
-            ArrayList a = (ArrayList) arrayList;
             adapter.notifyItemChanged(position);
         }
     }

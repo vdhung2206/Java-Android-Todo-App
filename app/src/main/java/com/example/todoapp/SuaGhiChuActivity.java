@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -57,6 +58,8 @@ public class SuaGhiChuActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> ganNhanLauncher;
     private ActivityThemGhiChuBinding binding;
     MyDialog dialog;
+    String loai;
+    String notify;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +86,13 @@ public class SuaGhiChuActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(null);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         ghiChu = getIntent().getParcelableExtra("ghiChuDaTao");
-        String loai = getIntent().getStringExtra("loai");
+        loai = getIntent().getStringExtra("loai");
+        notify = getIntent().getStringExtra("notify");
+        if(notify==null){
+            notify = "false";
+        }
+        Log.d("MyApp", "Value of 'loai' in onCreate: " + ghiChu.getTieuDe());
+
         if(loai != null && getIntent().getStringExtra("loai").equals("sua")){
             binding.tieuDe.setText(ghiChu.getTieuDe());
             binding.noiDung.setText(ghiChu.getNoiDung());
@@ -126,6 +135,10 @@ public class SuaGhiChuActivity extends AppCompatActivity {
                     resultIntent.putExtra("huyghichurong", "true");
                     setResult(RESULT_OK, resultIntent);
                     finish();
+                    if(notify.equals("true")){
+                        Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+                        startActivity(intent);
+                    }
                     onBackPressed();
                 } else {
                     Intent resultIntent = new Intent();
@@ -160,6 +173,10 @@ public class SuaGhiChuActivity extends AppCompatActivity {
 
                     setResult(RESULT_OK, resultIntent);
                     finish();
+                    if(notify.equals("true")){
+                        Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+                        startActivity(intent);
+                    }
                     onBackPressed();
                 }
                 }
@@ -204,6 +221,17 @@ public class SuaGhiChuActivity extends AppCompatActivity {
                     topBar.setBackgroundColor(getResources().getColor(R.color.md_theme_light_primary));
                     window.setStatusBarColor(getResources().getColor(R.color.md_theme_light_primary));
                 }
+            }
+        });
+        TextView notifyTextView = findViewById(R.id.notify);
+        Drawable yourIconDrawable = getResources().getDrawable(R.drawable.baseline_done_24_white);
+        notifyTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, yourIconDrawable, null);
+
+        notifyTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Xử lý sự kiện khi click vào biểu tượng
+                Toast.makeText(getApplicationContext(), "Icon clicked!", Toast.LENGTH_SHORT).show();
             }
         });
     }
