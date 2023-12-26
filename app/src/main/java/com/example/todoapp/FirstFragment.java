@@ -84,12 +84,9 @@ public class FirstFragment extends Fragment {
                     @Override
                     public void onActivityResult(ActivityResult result) {
                         if (result.getResultCode() == RESULT_OK) {
-                            // Xử lý kết quả trả về từ Activity thêm ghi chú
                             if (result.getData() != null) {
-                                // Kiểm tra và lấy dữ liệu ghi chú mới (nếu có)
                                 GhiChu newNote = result.getData().getParcelableExtra("new_note");
                                 if (newNote != null) {
-                                    // Truy cập FirstFragment và gọi phương thức addNewNote
                                     FirstFragment firstFragment = (FirstFragment) getParentFragmentManager().findFragmentById(R.id.mainFrame);
                                     if (firstFragment != null) {
                                         firstFragment.editNote(newNote, (result.getData().getIntExtra("position", -1)));
@@ -106,28 +103,21 @@ public class FirstFragment extends Fragment {
         GhiChuDAO ghiChuDAO = appDatabase.ghiChuDAO();
         arrayList = ghiChuDAO.getList(taiKhoanGhiNho);
         recyclerView = view.findViewById(R.id.rclListGhiChu);
-        for(GhiChu ghiChu:arrayList){
-            Log.e(ghiChu.getTieuDe(),"Tieu de:");
-        }
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 
         recyclerView.setLayoutManager(layoutManager);
         MaterialToolbar collapsingToolbar = requireActivity().findViewById(R.id.collapsingToolbar);
-//        Toolbar toolbar = requireActivity().findViewById(R.id.toolbar);
         AppBarLayout topBarLayout = requireActivity().findViewById(R.id.topbarlayout);
         AppBarLayout hiddenTopBarLayout = requireActivity().findViewById(R.id.hiddentopbarlayout);
         MaterialToolbar topbar = requireActivity().findViewById(R.id.topbar);
-
-
         ItemTouchHelper.Callback simpleCallback = new ItemTouchHelper.Callback() {
-
             @Override
             public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
                 int dragFlags = mDraggable ? ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END : 0; // Cho phép kéo lên và kéo xuống
 
                 if (arrayList.get(viewHolder.getAdapterPosition()).getIsPin() == 2) {
-                    dragFlags = 0; // If the current item is a separator, prevent dragging
+                    dragFlags = 0;
                 }
                 return makeMovementFlags(dragFlags, 0);
 
@@ -139,17 +129,16 @@ public class FirstFragment extends Fragment {
                 int toPosition = target.getAdapterPosition();
                 int separatorKhacIndex = 0;
                 for(int i = 0; i <arrayList.size(); i++){
-
                     if(arrayList.get(i).getIsPin()==2){
                         separatorKhacIndex = i;
                     }
                 }
                 if (arrayList.get(fromPosition).getIsPin() == 1) {
-                    if(toPosition >= separatorKhacIndex){
+                    if(toPosition >= separatorKhacIndex || arrayList.get(toPosition).getIsPin()==2){
                         return false;
                     }
                 } else if (arrayList.get(fromPosition).getIsPin() == 0){
-                    if(toPosition <= separatorKhacIndex){
+                    if(toPosition <= separatorKhacIndex && separatorKhacIndex !=0){
                         return false;
                     }
                 }
@@ -209,23 +198,17 @@ public class FirstFragment extends Fragment {
                     intent.putExtra("position", position);
                     editNoteLauncher.launch(intent);
                 } else {
-//                    arrayList.get(position).setSelected(!arrayList.get(position).isSelected());
                     ghiChu.setSelected(!ghiChu.isSelected());
                     arrayList.set(position, ghiChu);
                     if (arrayList.get(position).isSelected()) {
-//                        ghiChu.setSelected(true);
-                        // Thay đổi màu nền khi mục được chọn
                         holder.itemView.setSelected(true);
                     } else {
-                        // Thay đổi màu nền khi mục không được chọn
                         holder.itemView.setSelected(false);
-                        //ghiChu.setSelected(false);
                         if (countSelectedItems() == 0) {
                             ((MainActivity) getActivity()).hideTopBar();
                             multiselect = false;
                         }
                     }
-//                    adapter.notifyItemChanged(position);
                     showCountSelectedItems();
                 }
             }
@@ -246,16 +229,11 @@ public class FirstFragment extends Fragment {
                     Window window = getActivity().getWindow();
                     window.setStatusBarColor(getResources().getColor(R.color.md_theme_light_primary));
                 } else {
-                    //ghiChu.setSelected(true);
                     ghiChu.setSelected(!ghiChu.isSelected());
                     arrayList.set(position, ghiChu);
-                    //holder.itemView.setSelected(true);
                     if (arrayList.get(position).isSelected()) {
-//                        ghiChu.setSelected(true);
-                        // Thay đổi màu nền khi mục được chọn
                         holder.itemView.setSelected(true);
                     } else {
-                        // Thay đổi màu nền khi mục không được chọn
                         holder.itemView.setSelected(false);
                         //ghiChu.setSelected(false);
                         if (countSelectedItems() == 0) {
@@ -266,7 +244,6 @@ public class FirstFragment extends Fragment {
                         }
                     }
                 }
-//                adapter.notifyItemChanged(position);
                 showCountSelectedItems();
             }
         });
@@ -274,22 +251,18 @@ public class FirstFragment extends Fragment {
         addSeparatorIfNeeded();
         removeSeparatorKhacIfNeeded();
     }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
     }
-
     public void addNewNote(GhiChu newNote) {
         if (newNote != null) {
             if (!hasSeparator) {
-                // Thêm ghi chú mới vào danh sách và cập nhật RecyclerView
                 arrayList.add(0, newNote);
                 adapter.notifyItemInserted(0);
             } else {
                 int lastPinIndex = -1;
-                // Kiểm tra xem có phần tử nào có isPin=1 không
                 for (int i = arrayList.size() - 1; i >= 0; i--) {
                     GhiChu ghiChu = arrayList.get(i);
                     if (ghiChu.getIsPin() == 1) {
@@ -309,15 +282,12 @@ public class FirstFragment extends Fragment {
         }
         capNhatOrder();
     }
-
     public void editNote(GhiChu newNote, int position) {
         if (newNote != null) {
-            // Thêm ghi chú mới vào danh sách và cập nhật RecyclerView
             arrayList.set(position, newNote);
             adapter.notifyItemChanged(position);
         }
     }
-
     public void changeMode() {
         multiselect = false;
         Window window = getActivity().getWindow();
@@ -328,18 +298,14 @@ public class FirstFragment extends Fragment {
             ghiChu.setSelected(false);
             arrayList.set(position, ghiChu);
             ghiChuService.suaGhiChu(arrayList.get(i), arrayList.get(i).getMaGhiChu());
-            // Tìm viewHolder của phần tử tại vị trí hiện tại
             GhichuAdapter.myViewHolder holder = (GhichuAdapter.myViewHolder) recyclerView.findViewHolderForAdapterPosition(position);
             if (holder != null) {
-                // Đặt selected của itemView thành false
                 holder.itemView.setSelected(false);
             }
         }
-        // Cập nhật adapter
         mDraggable = true;
         adapter.notifyDataSetChanged();
     }
-
     public int countSelectedItems() {
         int count = 0;
         for (GhiChu ghiChu : arrayList) {
@@ -350,12 +316,10 @@ public class FirstFragment extends Fragment {
         mDraggable = count < 1;
         return count;
     }
-
     public void showCountSelectedItems() {
         TextView selectedCount = requireActivity().findViewById(R.id.selectedCount);
         selectedCount.setText(String.valueOf(countSelectedItems()));
     }
-
     public void markSelectedItemsAsDeleted() {
         for (int i = arrayList.size() - 1; i >= 0; i--) {
             GhiChu ghiChu = arrayList.get(i);
@@ -367,7 +331,6 @@ public class FirstFragment extends Fragment {
                 ghiChuService.suaGhiChu(ghiChu, ghiChu.getMaGhiChu());
                 GhichuAdapter.myViewHolder holder = (GhichuAdapter.myViewHolder) recyclerView.findViewHolderForAdapterPosition(i);
                 if (holder != null) {
-                    // Đặt selected của itemView thành false
                     holder.itemView.setSelected(false);
                 }
                 adapter.notifyItemRemoved(i);
@@ -381,39 +344,31 @@ public class FirstFragment extends Fragment {
         removeSeparatorKhacIfNeeded();
     }
     public void setNotifyForSelectedNotes(String date, String time, int repeatInterval) {
-        Log.e(date,"Date");
-        Log.e(time,"Time");
-
         for (GhiChu ghiChu : arrayList) {
             if (ghiChu.isSelected()) {
                 ghiChu.setCoLoiNhac(1);
-                ghiChu.setNgayNhac(date); // Set the date for the selected note
-                ghiChu.setGioNhac(time); // Set the time for the selected note
-                ghiChu.setNhacLapLai(repeatInterval); // Set the repeat interval for the selected note
-                // Update the note in the database
+                ghiChu.setDaXong(0);
+                ghiChu.setDaGui(0);
+                ghiChu.setNgayNhac(date);
+                ghiChu.setGioNhac(time);
+                ghiChu.setNhacLapLai(repeatInterval);
                 ghiChuService.suaGhiChu(ghiChu, ghiChu.getMaGhiChu());
             }
         }
-
-        // Notify the adapter to reflect the changes
         adapter.notifyDataSetChanged();
     }
     public void deleteNotifyForSelectedNotes() {
         for (GhiChu ghiChu : arrayList) {
             if (ghiChu.isSelected()) {
                 ghiChu.setCoLoiNhac(0);
-                ghiChu.setNgayNhac(""); // Set the date for the selected note
-                ghiChu.setGioNhac(""); // Set the time for the selected note
-                ghiChu.setNhacLapLai(0); // Set the repeat interval for the selected note
-                // Update the note in the database
+                ghiChu.setNgayNhac("");
+                ghiChu.setGioNhac("");
+                ghiChu.setNhacLapLai(0);
                 ghiChuService.suaGhiChu(ghiChu, ghiChu.getMaGhiChu());
             }
         }
-
-        // Notify the adapter to reflect the changes
         adapter.notifyDataSetChanged();
     }
-
     public ArrayList<GhiChu> getSelectedNotes() {
         ArrayList<GhiChu> selectedNotes = new ArrayList<>();
         for (GhiChu ghiChu : arrayList) {
@@ -423,22 +378,17 @@ public class FirstFragment extends Fragment {
         }
         return selectedNotes;
     }
-
     public void PinChoices(){
         boolean hasUnpinnedItem = false;
-
         for (GhiChu ghiChu : arrayList) {
             if (ghiChu.isSelected() && ghiChu.getIsPin() == 0) {
                 hasUnpinnedItem = true;
                 break;
             }
         }
-
         if (hasUnpinnedItem) {
-            // Gọi hàm pinSelectedItems() nếu có ít nhất một mục chưa được ghim
             markSelectedItemsAsPined();
         } else {
-            // Gọi hàm unpinSelectedItems() nếu tất cả các mục đã được ghim
             unpinSelectedItems();
         }
     }
@@ -446,7 +396,6 @@ public class FirstFragment extends Fragment {
         List<GhiChu> selectedItems = new ArrayList<>();
         int selectedCount = 0;
         addKhacSeparatorIfNeeded();
-        // Duyệt qua danh sách và tìm các phần tử được chọn
         for (int i = 0; i < arrayList.size(); i++) {
             GhiChu ghiChu = arrayList.get(i);
             if (ghiChu.isSelected()) {
@@ -497,13 +446,10 @@ public class FirstFragment extends Fragment {
         capNhatOrder();
         removeSeparatorsIfNeeded();
     }
-
-
     public void markSelectedItemsAsPined() {
         List<GhiChu> selectedItems = new ArrayList<>();
         int selectedCount = 0;
 
-        // Duyệt qua danh sách và tìm các phần tử được chọn
         for (int i = 0; i < arrayList.size(); i++) {
             GhiChu ghiChu = arrayList.get(i);
             if (ghiChu.isSelected()) {
@@ -511,39 +457,30 @@ public class FirstFragment extends Fragment {
                 selectedCount++;
             }
         }
-
         if (selectedCount > 0) {
-            // Xác định vị trí của phần tử đã chọn trong danh sách
             int[] selectedIndexes = new int[selectedCount];
             for (int i = 0; i < selectedCount; i++) {
                 int selectedIndex = arrayList.indexOf(selectedItems.get(i));
                 selectedIndexes[i] = selectedIndex;
             }
-
-            // Di chuyển các phần tử đã chọn lên đầu danh sách
             for (int i = 0; i < selectedCount; i++) {
                 int fromPosition = selectedIndexes[i];
                 int toPosition = i;
                 if (hasSeparator) {
-                    toPosition++; // Nếu có separator, tăng toPosition lên 1
+                    toPosition++;
                 }
-
                 GhiChu selectedGhiChu = arrayList.remove(fromPosition);
                 arrayList.add(toPosition, selectedGhiChu);
-                // Thông báo cho Adapter biết phần tử đã được di chuyển
                 adapter.notifyItemMoved(fromPosition, toPosition);
-                // Cập nhật trạng thái của phần tử đã di chuyển
                 selectedGhiChu.setSelected(false);
                 selectedGhiChu.setIsPin(1);
                 ghiChuService.suaGhiChu(selectedGhiChu, selectedGhiChu.getMaGhiChu());
 
                 GhichuAdapter.myViewHolder holder = (GhichuAdapter.myViewHolder) recyclerView.findViewHolderForAdapterPosition(toPosition);
                 if (holder != null) {
-                    // Đặt selected của itemView thành false
                     holder.itemView.setSelected(false);
                 }
             }
-
             ((MainActivity) getActivity()).hideTopBar();
             Window window = getActivity().getWindow();
             window.setStatusBarColor(getResources().getColor(R.color.white));
@@ -553,7 +490,6 @@ public class FirstFragment extends Fragment {
         addSeparatorIfNeeded();
         removeSeparatorKhacIfNeeded();
     }
-
     public void capNhatOrder() {
         for (int i = 0; i < arrayList.size(); i++) {
             GhiChu ghiChu = arrayList.get(i);
@@ -563,18 +499,13 @@ public class FirstFragment extends Fragment {
     }
     public void removeSeparatorsIfNeeded() {
         boolean hasPinnedItems = false;
-
-        // Kiểm tra xem có phần tử nào có isPin = 1 không
         for (GhiChu ghiChu : arrayList) {
             if (ghiChu.getIsPin() == 1) {
                 hasPinnedItems = true;
                 break;
             }
         }
-
-
         if (!hasPinnedItems) {
-            // Xóa tất cả phần tử ngăn cách nếu không còn phần tử nào có isPin = 1
             for (int i = arrayList.size() - 1; i >= 0; i--) {
                 if (arrayList.get(i).getIsPin() == 2) {
                     arrayList.remove(i);
@@ -586,17 +517,13 @@ public class FirstFragment extends Fragment {
     }
     public void removeSeparatorKhacIfNeeded() {
         boolean allItemsPinned = true;
-
-        // Kiểm tra xem tất cả phần tử có đều được ghim hay không
         for (GhiChu ghiChu : arrayList) {
             if (ghiChu.getIsPin() ==0) {
                 allItemsPinned = false;
                 break;
             }
         }
-
         if (allItemsPinned && hasKhacSeparator) {
-            // Xóa phần tử ngăn cách "Khác"
             for (int i = arrayList.size() - 1; i >= 0; i--) {
                 if (arrayList.get(i).getIsPin() == 2 && arrayList.get(i).getNoiDung().equals("Khác")) {
                     arrayList.remove(i);
@@ -609,41 +536,32 @@ public class FirstFragment extends Fragment {
     }
     public void addKhacSeparatorIfNeeded() {
         boolean hasUnpinnedItems = false;
-
-        // Kiểm tra xem có mục nào chưa được ghim không
         for (GhiChu ghiChu : arrayList) {
             if (ghiChu.getIsPin() != 1) {
                 hasUnpinnedItems = true;
                 break;
             }
         }
-
         if (hasUnpinnedItems && !hasKhacSeparator) {
             GhiChu separator1 = new GhiChu();
             separator1.setNoiDung("Khác");
             separator1.setIsPin(2);
             int lastPinIndex = 0;
-
             for (int i = arrayList.size() - 1; i >= 0; i--) {
                 if (arrayList.get(i).getIsPin() == 1) {
                     lastPinIndex = i;
                     break;
                 }
             }
-
             arrayList.add(lastPinIndex + 1, separator1);
-            // Cập nhật adapter để hiển thị phần tử ngăn cách "Khác"
             adapter.notifyItemInserted(lastPinIndex + 2);
             hasKhacSeparator = true;
         }
     }
-
-
     public void addSeparatorIfNeeded() {
         if (!hasSeparator) {
             boolean pinFound = false;
             int lastPinIndex = -1;
-            // Kiểm tra xem có phần tử nào có isPin=1 không
             for (GhiChu ghiChu : arrayList) {
                 if (ghiChu.getIsPin() == 1) {
                     pinFound = true;
@@ -668,14 +586,12 @@ public class FirstFragment extends Fragment {
                 hasKhacSeparator = true;
                 separator1.setIsPin(2);
                 arrayList.add(lastPinIndex + 2, separator1);
-                // Cập nhật adapter để hiển thị phần tử ngăn cách
                 adapter.notifyItemInserted(0);
                 adapter.notifyItemInserted(lastPinIndex + 2);
                 hasSeparator = true;
             }
         }
     }
-
     public void reLoad() {
         adapter.notifyDataSetChanged();
     }

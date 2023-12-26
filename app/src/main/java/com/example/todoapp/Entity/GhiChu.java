@@ -28,6 +28,9 @@ public class GhiChu implements Parcelable {
     private boolean isSelected = false;
     private int order;
     private int isPin;
+    private int daGui;
+    private int daXong;
+
 
     protected GhiChu(Parcel in) {
         maGhiChu = in.readInt();
@@ -47,6 +50,8 @@ public class GhiChu implements Parcelable {
         nhacLapLai = in.readInt();
         order = in.readInt();
         isPin = in.readInt();
+        daGui = in.readInt();
+        daXong = in.readInt();
     }
 
     public static final Creator<GhiChu> CREATOR = new Creator<GhiChu>() {
@@ -205,6 +210,22 @@ public class GhiChu implements Parcelable {
     public void setSelected(boolean selected) {
         isSelected = selected;
     }
+    public int getDaGui() {
+        return daGui;
+    }
+
+    public void setDaGui(int daGui) {
+        this.daGui = daGui;
+    }
+
+    public int getDaXong() {
+        return daXong;
+    }
+
+    public void setDaXong(int daXong) {
+        this.daXong = daXong;
+    }
+
 
     @Override
     public int describeContents() {
@@ -230,5 +251,8 @@ public class GhiChu implements Parcelable {
         dest.writeInt(nhacLapLai);
         dest.writeInt(order);
         dest.writeInt(isPin);
+        dest.writeInt(daGui);
+        dest.writeInt(daXong);
+
     }
 }

@@ -112,7 +112,7 @@ public class GhichuAdapter extends RecyclerView.Adapter<GhichuAdapter.myViewHold
                 tieuDeTextView.setVisibility(View.GONE);
             } else {
                 tieuDeTextView.setText(ghiChu.getTieuDe());
-                tieuDeTextView.setVisibility(View.VISIBLE); // Đảm bảo hiển thị khi có dữ liệu
+                tieuDeTextView.setVisibility(View.VISIBLE);
                 noiDungTextView.setText(ghiChu.getNoiDung());
                 noiDungTextView.setMaxLines(15);
                 noiDungTextView.setEllipsize(TextUtils.TruncateAt.END);
@@ -124,9 +124,9 @@ public class GhichuAdapter extends RecyclerView.Adapter<GhichuAdapter.myViewHold
                     int position = holder.getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
                         listener.onItemLongClick(arrayList.get(position), position);
-                        return true; // Đã xử lý sự kiện ấn giữ
+                        return true;
                     }
-                    return false; // Không xử lý sự kiện ấn giữ
+                    return false;
                 }
             });
             holder.listNhan();
@@ -163,7 +163,6 @@ public class GhichuAdapter extends RecyclerView.Adapter<GhichuAdapter.myViewHold
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // Gọi phương thức onItemClick của bộ lắng nghe
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
                         listener.onItemClick(arrayList.get(position), position);
@@ -181,14 +180,13 @@ public class GhichuAdapter extends RecyclerView.Adapter<GhichuAdapter.myViewHold
             // Lặp qua danh sách các nhãn và thêm chúng vào FlexboxLayout, nhưng chỉ tối đa 2 nhãn
             for (int i = 0; i < Math.min(listNhan.size(), maxLabels); i++) {
                 Nhan nhan = listNhan.get(i);
-                TextView textView = createLabelTextView(nhan.getTenNhan());
+                TextView textView = createLabelTextView(nhan.getTenNhan(),0);
                 this.nhan.addView(textView);
             }
 
-            // Tính toán số lượng còn lại
             int remainingCount = listNhan.size() - maxLabels;
             if (remainingCount > 0) {
-                TextView remainingTextView = createLabelTextView("+" + remainingCount);
+                TextView remainingTextView = createLabelTextView("+" + remainingCount,0);
                 this.nhan.addView(remainingTextView);
             }
         }
@@ -198,19 +196,30 @@ public class GhichuAdapter extends RecyclerView.Adapter<GhichuAdapter.myViewHold
 
             if (ngayNhac != null && !ngayNhac.isEmpty() && gioNhac != null && !gioNhac.isEmpty()) {
                 String dateTime = formatDateTime(ngayNhac, gioNhac);
-                TextView dateTimeTextView = createLabelTextView(dateTime);
+                TextView dateTimeTextView = createLabelTextView(dateTime, ghiChu.getDaGui());
                 this.nhan.addView(dateTimeTextView, 0);
                 Drawable clockIcon;
                 if(ghiChu.getNhacLapLai()!=0){
-                    clockIcon = context.getDrawable(R.drawable.baseline_repeat_18);
+                    if(ghiChu.getDaGui() == 1){
+                        clockIcon = context.getDrawable(R.drawable.baseline_repeat_24_sent);
+                    } else {
+                        clockIcon = context.getDrawable(R.drawable.baseline_repeat_18);
+                    }
                 } else{
-                    clockIcon = context.getDrawable(R.drawable.baseline_access_alarms_18);
+                    if(ghiChu.getDaGui() == 1){
+                        clockIcon = context.getDrawable(R.drawable.baseline_access_alarm_24);
+                    } else {
+                        clockIcon = context.getDrawable(R.drawable.baseline_access_alarms_18);
+                    }
+                }
+                if(ghiChu.getDaXong()==1){
+                    dateTimeTextView.setPaintFlags(dateTimeTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
                 }
                 dateTimeTextView.setCompoundDrawablesWithIntrinsicBounds(clockIcon, null, null, null);
                 dateTimeTextView.setCompoundDrawablePadding(20);
             }
         }
-        private TextView createLabelTextView(String label) {
+        private TextView createLabelTextView(String label, int daGui) {
             TextView textView = new TextView(context);
             textView.setText(label);
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
@@ -221,8 +230,14 @@ public class GhichuAdapter extends RecyclerView.Adapter<GhichuAdapter.myViewHold
             layoutParams.rightMargin = context.getResources().getDimensionPixelSize(R.dimen.margin_8dp);
             layoutParams.topMargin = context.getResources().getDimensionPixelSize(R.dimen.margin_8dp) ;
             textView.setLayoutParams(layoutParams);
-            textView.setTextColor(0xFF313131);
-            Drawable drawable = context.getResources().getDrawable(R.drawable.background_label1);
+            Drawable drawable;
+            if(daGui == 1){
+                drawable = context.getResources().getDrawable(R.drawable.background_label2);
+                textView.setTextColor(0xFFA8A7A7);
+            } else {
+                drawable = context.getResources().getDrawable(R.drawable.background_label1);
+                textView.setTextColor(0xFF313131);
+            }
 
             textView.setBackground(drawable);
             return textView;
@@ -247,7 +262,6 @@ public class GhichuAdapter extends RecyclerView.Adapter<GhichuAdapter.myViewHold
                 String ngay = String.valueOf(calendar.get(Calendar.DAY_OF_MONTH));
                 String thang = String.valueOf(calendar.get(Calendar.MONTH) + 1);
 
-                // Kiểm tra nếu năm là năm hiện tại thì không hiển thị năm
                 String nam = calendar.get(Calendar.YEAR) == homNay.get(Calendar.YEAR)
                         ? ""
                         : ", " + String.valueOf(calendar.get(Calendar.YEAR));

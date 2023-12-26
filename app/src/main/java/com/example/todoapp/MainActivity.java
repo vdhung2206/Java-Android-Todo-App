@@ -15,18 +15,23 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -72,8 +77,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     NhanService nhanService;
     List<Nhan> arrayList;
     FirstFragment firstFragment;
+    SecondFragment secondFragment;
     MaterialToolbar collapsingToolbar;
+    MaterialToolbar collapsingToolbar1;
     AppBarLayout hiddenTopBarLayout;
+    AppBarLayout hiddenTopBarLayout1;
+    AppBarLayout topBarLayout;
     private ActivityMainBinding binding;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -98,15 +107,65 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         listNhan = nhanService.getList(Integer.valueOf(preferences.getString("UID", "")));
         Toolbar toolbar = findViewById(R.id.topbar);
         hiddenTopBarLayout = findViewById(R.id.hiddentopbarlayout);
+        hiddenTopBarLayout1 = findViewById(R.id.hiddentopbarlayout1);
         setSupportActionBar(toolbar);
         drawerLayout = binding.drawerLayout;
         navigationView = binding.navView;
         navigationView.bringToFront();
         navigationView.setNavigationItemSelectedListener(this);
-
+        topBarLayout = findViewById(R.id.topbarlayout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+
+        binding.topbar.setOnClickListener(v -> {
+            Animation slideInAnimation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_in);
+            collapsingToolbar1.startAnimation(slideInAnimation);
+            collapsingToolbar1.setVisibility(View.VISIBLE);
+            hiddenTopBarLayout1.setVisibility(View.VISIBLE);
+            topBarLayout.setVisibility(View.GONE);
+            toolbar.setVisibility(View.GONE);
+            Window window = MainActivity.this.getWindow();
+            window.setStatusBarColor(getResources().getColor(R.color.md_theme_light_primary));
+            collapsingToolbar1.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Animation slideOutAnimation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_in);
+                    hiddenTopBarLayout1.startAnimation(slideOutAnimation);
+                    collapsingToolbar1.setVisibility(View.GONE);
+                    Animation slideInAnimation = AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_out);
+                    topBarLayout.setVisibility(View.VISIBLE);
+                    toolbar.setVisibility(View.VISIBLE);
+                    toolbar.startAnimation(slideInAnimation);
+                    window.setStatusBarColor(getResources().getColor(R.color.white));
+                    replaceFragment(new FirstFragment());
+                }
+            });
+            EditText searchBar = findViewById(R.id.searchbar);
+            searchBar.requestFocus();
+            InputMethodManager imm = (InputMethodManager) MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(searchBar, InputMethodManager.SHOW_IMPLICIT);
+            searchBar.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int start, int before, int count) {
+                    // Thực hiện hành động trước khi văn bản thay đổi
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                    String taiKhoanGhiNho = preferences.getString("UID", "");
+                    String enteredText = charSequence.toString();
+                    secondFragment = (SecondFragment) getSupportFragmentManager().findFragmentById(R.id.mainFrame);
+                    secondFragment.search(taiKhoanGhiNho, enteredText);
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    // Thực hiện hành động sau khi văn bản thay đổi
+                }
+            });
+            replaceFragment(new SecondFragment());
+        });
 
         binding.topbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.btnDangXuat) {
@@ -121,7 +180,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             return true;
         });
-
         final ActivityResultLauncher<Intent> editNoteLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -150,6 +208,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
                         if (result.getData() != null) {
+                            replaceFragment(new FirstFragment());
+
+                            // Thực hiện transaction ngay lập tức
+                            getSupportFragmentManager().executePendingTransactions();
                             listNhan = nhanService.getList(Integer.parseInt(preferences.getString("UID", "")));
                             updateNavigationView();
                             firstFragment = (FirstFragment) getSupportFragmentManager().findFragmentById(R.id.mainFrame);
@@ -191,6 +253,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             editNoteLauncher.launch(intent);
         });
         collapsingToolbar = findViewById(R.id.collapsingToolbar);
+        collapsingToolbar1 = findViewById(R.id.collapsingToolbar1);
         collapsingToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -205,9 +268,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 FirstFragment firstFragment = (FirstFragment) getSupportFragmentManager().findFragmentById(R.id.mainFrame);
                 firstFragment.PinChoices();
             } else if (itemId == R.id.menu_notify) {
-//                openDateTimePickerDialog();
-//                MyDialog dialog = MyDialog.newInstance();
-//                dialog.show(getSupportFragmentManager(),"");
                 dialog = MyDialog.newInstance(new MyDialog.OnDialogDismissListener() {
                     @Override
                     public void onDismiss() {
@@ -251,11 +311,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             PendingIntent pendingIntent;
 
                             if (ghiChu.getNhacLapLai() > 0) {
-                                // Sử dụng setRepeating nếu nhacLapLai > 0
                                 pendingIntent = PendingIntent.getBroadcast(MainActivity.this, ghiChu.getMaGhiChu(), intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
                                 alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeInMillis, AlarmManager.INTERVAL_DAY,pendingIntent);
                             } else {
-                                // Sử dụng setExactAndAllowWhileIdle nếu nhacLapLai = 0
                                 pendingIntent = PendingIntent.getBroadcast(MainActivity.this, ghiChu.getMaGhiChu(), intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
                                 alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
                             }
@@ -267,8 +325,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         dialog.setTimeSeted(true);
                         firstFragment.changeMode();
                     }
-
-
                     @Override
                     public void onCancelClicked() {
                         FirstFragment firstFragment = (FirstFragment) getSupportFragmentManager().findFragmentById(R.id.mainFrame);
@@ -352,20 +408,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         }
                     }
                 });
-//                ok();
             } else if (itemId == R.id.menu_delete) {
                 FirstFragment firstFragment = (FirstFragment) getSupportFragmentManager().findFragmentById(R.id.mainFrame);
                 firstFragment.markSelectedItemsAsDeleted();
                 return true;
             } else if (itemId == R.id.more) {
-                // Xử lý khi người dùng chọn "Thêm"
             } else {
-                // Xử lý cho trường hợp mặc định (nếu cần)
             }
             return false;
         });
         replaceFragment(new FirstFragment());
-//        replaceFragment2(new SecondFragment());
     }
     public void hideTopBar() {
         AppBarLayout topBarLayout = findViewById(R.id.topbarlayout);
@@ -374,7 +426,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Animation slideOutAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_out);
         hiddenTopBarLayout.startAnimation(slideOutAnimation);
         collapsingToolbar.setVisibility(View.INVISIBLE);
-        //hiddenTopBarLayout.setVisibility(View.INVISIBLE);
         topbar.setVisibility(View.VISIBLE);
         topBarLayout.setVisibility(View.VISIBLE);
         Animation slideInAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.slide_out);
@@ -391,9 +442,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         SubMenu parentMenu = navigationMenu.findItem(R.id.menuNhan).getSubMenu();
         parentMenu.clear();
+
         int lastPosition = 0;
         if (listNhan.size() > 0) {
-            Toast.makeText(this, "2", Toast.LENGTH_SHORT).show();
             for (Nhan nhan : listNhan) {
                 parentMenu.add(Menu.NONE, Menu.NONE, 1, nhan.getTenNhan());
             }
@@ -402,15 +453,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 MenuItem menuItemMucMoi = parentMenu.getItem(i);
                 menuItemMucMoi.setIcon(R.drawable.outline_label_24);
                 final String tenNhan = listNhan.get(i).getTenNhan();
+                int finalI = i;
+                int finalI1 = i;
                 menuItemMucMoi.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        Toast.makeText(MainActivity.this, "Bạn đã chọn: " + tenNhan, Toast.LENGTH_SHORT).show();
+                        replaceFragment(new SecondFragment());
+
+                        // Thực hiện transaction ngay lập tức
+                        getSupportFragmentManager().executePendingTransactions();
+
+                        // Lấy fragment hiện tại sau khi transaction đã được thực hiện
+                        secondFragment = (SecondFragment) getSupportFragmentManager().findFragmentById(R.id.mainFrame);
+                        secondFragment.searchByTag(listNhan.get(finalI1).getMaNhan());
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         return true;
                     }
                 });
                 if (getMenuItemTextWidth(menuItemMucMoi) > maxWidth) {
-                    // Văn bản vượt quá giới hạn, thêm dấu "..."
                     String truncatedText = truncateTextWithEllipsis(tenNhan, maxWidth);
                     menuItemMucMoi.setTitle(truncatedText);
                 }
@@ -443,10 +503,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             MenuItem menuItemMucMoi = parentMenu.getItem(i);
             menuItemMucMoi.setIcon(R.drawable.outline_label_24);
             final String tenNhan = listNhan.get(i).getTenNhan();
+            int finalI1 = i;
             menuItemMucMoi.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
-                    Toast.makeText(MainActivity.this, "Bạn đã chọn: " + tenNhan, Toast.LENGTH_SHORT).show();
+                    replaceFragment(new SecondFragment());
+
+                    // Thực hiện transaction ngay lập tức
+                    getSupportFragmentManager().executePendingTransactions();
+
+                    // Lấy fragment hiện tại sau khi transaction đã được thực hiện
+                    secondFragment = (SecondFragment) getSupportFragmentManager().findFragmentById(R.id.mainFrame);
+                    secondFragment.searchByTag(listNhan.get(finalI1).getMaNhan());
+                    drawerLayout.closeDrawer(GravityCompat.START);
                     return true;
                 }
             });
@@ -490,9 +559,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.loiNhac) {
-            Toast.makeText(this, "Lời nhắc", Toast.LENGTH_SHORT).show();
+
         } else if (item.getItemId() == R.id.ghiChu) {
-            Toast.makeText(this, "Ghi chú", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, MainActivity.class);
+            startActivity(intent);
         }
 //        drawerLayout.closeDrawer(GravityCompat.START);
         return true;

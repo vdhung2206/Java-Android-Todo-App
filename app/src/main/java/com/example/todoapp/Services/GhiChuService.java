@@ -48,4 +48,7 @@ public class GhiChuService {
     public int xoaGhiChu(GhiChu ghiChu){
         return ghiChuDAO.xoaGhiChu(ghiChu);
     }
+    public List<GhiChu> timKiemGhiChu(String taiKhoanGhiNho, String query, String queryWithWildcard){
+        return ghiChuDAO.timKiemGhiChu(taiKhoanGhiNho, query, queryWithWildcard);
+    }
 }

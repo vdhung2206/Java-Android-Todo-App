@@ -25,4 +25,7 @@ public class ChiTietNhanService {
     public int xoaChiTietNhan(int maNhan, int maGhiChu){
         return chiTietNhanDAO.xoaChiTietNhan(maNhan, maGhiChu);
     }
+    public List<GhiChu> getListGhiChuOfNhan(int maNhan){
+        return chiTietNhanDAO.getListGhiChuOfNhan(maNhan);
+    }
 }

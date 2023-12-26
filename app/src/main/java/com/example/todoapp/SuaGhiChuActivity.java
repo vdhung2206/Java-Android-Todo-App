@@ -6,8 +6,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
@@ -60,7 +64,9 @@ public class SuaGhiChuActivity extends AppCompatActivity {
     MyDialog dialog;
     String loai;
     String notify;
-
+    TextView dateTimeTextView;
+    TextView notifyTextView;
+    private AlarmManager alarmManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,7 +97,6 @@ public class SuaGhiChuActivity extends AppCompatActivity {
         if(notify==null){
             notify = "false";
         }
-        Log.d("MyApp", "Value of 'loai' in onCreate: " + ghiChu.getTieuDe());
 
         if(loai != null && getIntent().getStringExtra("loai").equals("sua")){
             binding.tieuDe.setText(ghiChu.getTieuDe());
@@ -102,14 +107,11 @@ public class SuaGhiChuActivity extends AppCompatActivity {
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                // Được gọi trước khi văn bản trong EditText thay đổi
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                // Được gọi khi văn bản trong EditText đang thay đổi
                 String newText = charSequence.toString();
-                // Xử lý newText ở đây
             }
 
             @Override
@@ -163,7 +165,6 @@ public class SuaGhiChuActivity extends AppCompatActivity {
                         Date currentTime = new Date();
                         String formattedDate = dateFormat.format(currentTime);
 
-                        // Định dạng giờ/phút/giây
                         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
                         String formattedTime = timeFormat.format(currentTime);
                         ghiChu.setNgaySuaDoi(formattedDate);
@@ -191,9 +192,6 @@ public class SuaGhiChuActivity extends AppCompatActivity {
                 }
         );
 
-//        MyDialog dialog = MyDialog.newInstance();
-//        dialog.show(getSupportFragmentManager(), "MyDialogFragment");
-
         NestedScrollView nestedScrollView = findViewById(R.id.nestedScrollView);
         MaterialToolbar bottomBar = findViewById(R.id.bottomBar);
         MaterialToolbar topBar = findViewById(R.id.topbar1);
@@ -206,11 +204,9 @@ public class SuaGhiChuActivity extends AppCompatActivity {
                 int scrollY = nestedScrollView.getScrollY();
 
                 if (!nestedScrollView.canScrollVertically(1)) {
-                    // Cuộn xuống cuối trang hoặc đã đến cuối nội dung, thay đổi màu thành màu khi cuộn
                     bottomBar.setBackgroundColor(getResources().getColor(R.color.white));
                     window.setNavigationBarColor(getResources().getColor(R.color.white));
                 } else {
-                    // Cuộn lên đầu trang, thay đổi màu về màu gốc
                     bottomBar.setBackgroundColor(getResources().getColor(R.color.md_theme_light_primary));
                     window.setNavigationBarColor(getResources().getColor(R.color.md_theme_light_primary));
                 }
@@ -223,41 +219,63 @@ public class SuaGhiChuActivity extends AppCompatActivity {
                 }
             }
         });
-        TextView notifyTextView = findViewById(R.id.notify);
+        notifyTextView = findViewById(R.id.notify);
         Drawable yourIconDrawable = getResources().getDrawable(R.drawable.baseline_done_24_white);
         notifyTextView.setCompoundDrawablesWithIntrinsicBounds(null, null, yourIconDrawable, null);
-
+        if(ghiChu.getDaGui()==1){
+            if(ghiChu.getDaXong()!=1){
+                notifyTextView.setVisibility(View.VISIBLE);
+            } else{
+                dateTimeTextView.setPaintFlags(dateTimeTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            }
+        }
+        if(ghiChu.getCoLoiNhac()==1 && ghiChu.getDaGui()==1){
+            String dateTime = formatDateTime(ghiChu.getNgayNhac(), ghiChu.getGioNhac());
+            notifyTextView.setText("Đã gửi vào " + dateTime);
+        }
         notifyTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Xử lý sự kiện khi click vào biểu tượng
-                Toast.makeText(getApplicationContext(), "Icon clicked!", Toast.LENGTH_SHORT).show();
+                if (ghiChu.getNhacLapLai()!=0){
+                    ghiChu.setDaGui(0);
+                    ghiChu.setDaXong(0);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.add(Calendar.DAY_OF_YEAR, 1);
+                    Date tomorrow = calendar.getTime();
+                    ghiChu.setNgayNhac(new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(tomorrow));
+                    dateTimeTextView.setTextColor(0xFF313131);
+                    String dateTime = formatDateTime(ghiChu.getNgayNhac(), ghiChu.getGioNhac());
+                    dateTimeTextView.setText(dateTime);
+                    Drawable drawable;
+                    drawable = getResources().getDrawable(R.drawable.background_label1);
+                    dateTimeTextView.setBackground(drawable);
+                    Drawable clockIcon = getResources().getDrawable(R.drawable.baseline_repeat_24);
+                    dateTimeTextView.setCompoundDrawablesWithIntrinsicBounds(clockIcon, null, null, null);
+                } else{
+                    ghiChu.setDaXong(1);
+                    dateTimeTextView.setPaintFlags(dateTimeTextView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                }
+                ghiChuService.suaGhiChu(ghiChu,ghiChu.getMaGhiChu());
+                notifyTextView.setVisibility(View.GONE);
             }
         });
     }
     private String createThoiGianChinhSuaText(String ngayChinhSua, String gioChinhSua) {
-        // Lấy ngày hiện tại
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
         String homNay = dateFormat.format(calendar.getTime());
-
-        // Tạo một DateFormat để đọc ngày chinh sua từ chuỗi
         DateFormat inputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
         try {
             Date ngaySua = inputFormat.parse(ngayChinhSua + " " + gioChinhSua);
 
-            // Loại bỏ phần giờ, phút và giây
             Calendar ngaySuaCalendar = Calendar.getInstance();
             ngaySuaCalendar.setTime(ngaySua);
             ngaySuaCalendar.set(Calendar.HOUR_OF_DAY, 0);
             ngaySuaCalendar.set(Calendar.MINUTE, 0);
             ngaySuaCalendar.set(Calendar.SECOND, 0);
             ngaySuaCalendar.set(Calendar.MILLISECOND, 0);
-
-            // Loại bỏ phần giây
             ngaySuaCalendar.set(Calendar.SECOND, 0);
 
-            // Kiểm tra xem ngày chỉnh sửa có phải là hôm nay, hôm qua hoặc ngày khác
             Calendar homNayCalendar = Calendar.getInstance();
             homNayCalendar.setTimeInMillis(System.currentTimeMillis());
             homNayCalendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -266,20 +284,16 @@ public class SuaGhiChuActivity extends AppCompatActivity {
             homNayCalendar.set(Calendar.MILLISECOND, 0);
 
             if (ngaySuaCalendar.equals(homNayCalendar)) {
-                // Ngày chỉnh sửa là hôm nay
                 SimpleDateFormat gioChinhSuaFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                 String gioChinhSuaWithoutSeconds = gioChinhSuaFormat.format(ngaySua);
                 return "Đã chỉnh sửa " + gioChinhSuaWithoutSeconds;
             } else {
-                // Ngày chỉnh sửa không phải là hôm nay
                 homNayCalendar.add(Calendar.DAY_OF_YEAR, -1);
                 if (ngaySuaCalendar.equals(homNayCalendar)) {
-                    // Ngày chỉnh sửa là hôm qua
                     SimpleDateFormat gioChinhSuaFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                     String gioChinhSuaWithoutSeconds = gioChinhSuaFormat.format(ngaySua);
                     return "Đã chỉnh sửa hôm qua " + gioChinhSuaWithoutSeconds;
                 } else {
-                    // Ngày chỉnh sửa không phải hôm nay hoặc hôm qua
                     SimpleDateFormat ngayThangFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                     SimpleDateFormat gioChinhSuaFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                     String ngayThang = ngayThangFormat.format(ngaySua);
@@ -294,7 +308,6 @@ public class SuaGhiChuActivity extends AppCompatActivity {
     }
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        // use amvMenu here
         inflater.inflate(R.menu.bottombar1, menu);
         return true;
     }
@@ -344,7 +357,7 @@ public class SuaGhiChuActivity extends AppCompatActivity {
         if (ghiChu.getNgayNhac() != null && !ghiChu.getNgayNhac().isEmpty() &&
                 ghiChu.getGioNhac() != null && !ghiChu.getGioNhac().isEmpty()) {
             String dateTime = formatDateTime(ngayNhac, gioNhac);
-            TextView dateTimeTextView = new TextView(this);
+            dateTimeTextView = new TextView(this);
             dateTimeTextView.setText(dateTime);
 
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
@@ -356,7 +369,11 @@ public class SuaGhiChuActivity extends AppCompatActivity {
 
             dateTimeTextView.setLayoutParams(layoutParams);
             dateTimeTextView.setTextSize(16);
-            dateTimeTextView.setTextColor(0xFF313131);
+            if(ghiChu.getDaGui() == 1){
+                dateTimeTextView.setTextColor(0xFFA8A7A7);
+            } else {
+                dateTimeTextView.setTextColor(0xFF313131);
+            }
             dateTimeTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -377,15 +394,38 @@ public class SuaGhiChuActivity extends AppCompatActivity {
                             SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                             String formattedDate = dateFormat.format(dialog.getSelectedDate().getTime());
                             String formattedTime = timeFormat.format(dialog.getSelectedTime().getTime());
-
+                            String dateTimeString = formattedDate + " " + formattedTime;
+                            Date dateTime = null;
+                            try {
+                                dateTime = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).parse(dateTimeString);
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
                             ghiChu.setNgayNhac(formattedDate);
                             ghiChu.setGioNhac(formattedTime);
                             ghiChu.setNhacLapLai(dialog.getRepeat());
+                            ghiChu.setDaXong(0);
+                            ghiChu.setDaGui(0);
+                            ghiChuService.suaGhiChu(ghiChu,ghiChu.getMaGhiChu());
                             dialog.dismiss();
                             dialog.setFirstOpenDialog(true);
                             dialog.setHasNotify(false);
                             dialog.setTimeSeted(true);
                             updateDateTimeLabel(ghiChu);
+                            long timeInMillis = dateTime != null ? dateTime.getTime() : 0;
+
+                            alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                            Intent intent = new Intent(SuaGhiChuActivity.this, AlarmReceiver.class);
+                            intent.putExtra("ghiChu", ghiChu);
+                            PendingIntent pendingIntent;
+                            notifyTextView.setVisibility(View.GONE);
+                            if (ghiChu.getNhacLapLai() > 0) {
+                                pendingIntent = PendingIntent.getBroadcast(SuaGhiChuActivity.this, ghiChu.getMaGhiChu(), intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeInMillis, AlarmManager.INTERVAL_DAY,pendingIntent);
+                            } else {
+                                pendingIntent = PendingIntent.getBroadcast(SuaGhiChuActivity.this, ghiChu.getMaGhiChu(), intent, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, timeInMillis, pendingIntent);
+                            }
                         }
 
                         @Override
@@ -432,13 +472,27 @@ public class SuaGhiChuActivity extends AppCompatActivity {
                     });
                 }
             });
-            Drawable drawable = getResources().getDrawable(R.drawable.background_label);
+            Drawable drawable;
+            if(ghiChu.getDaGui() == 1){
+                drawable = getResources().getDrawable(R.drawable.background_label2);
+            } else {
+                drawable = getResources().getDrawable(R.drawable.background_label);
+            }
             Drawable clockIcon;
             if(ghiChu.getNhacLapLai()!=0){
-                clockIcon = getResources().getDrawable(R.drawable.baseline_repeat_24);
+                if(ghiChu.getDaGui() == 1){
+                    clockIcon = getResources().getDrawable(R.drawable.baseline_repeat_24_sent);
+                } else {
+                    clockIcon = getResources().getDrawable(R.drawable.baseline_repeat_24);
+                }
             } else{
-                clockIcon = getResources().getDrawable(R.drawable.baseline_access_alarms_24);
+                if(ghiChu.getDaGui() == 1) {
+                    clockIcon = getResources().getDrawable(R.drawable.baseline_access_alarm_24);
+                } else {
+                    clockIcon = getResources().getDrawable(R.drawable.baseline_access_alarms_24);
+                }
             }
+
             dateTimeTextView.setCompoundDrawablesWithIntrinsicBounds(clockIcon, null, null, null);
             dateTimeTextView.setCompoundDrawablePadding(20);
             dateTimeTextView.setBackground(drawable);

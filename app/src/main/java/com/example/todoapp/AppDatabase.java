@@ -19,11 +19,11 @@ import com.example.todoapp.Entity.TaiKhoan;
 import java.lang.annotation.Annotation;
 
 @Database(entities = {TaiKhoan.class, GhiChu.class, Nhan.class, ChiTietNhan.class},
-        version = 12, exportSchema = false)
+        version = 13, exportSchema = false)
 //@TypeConverters(Annotation.class)
 public abstract class AppDatabase extends RoomDatabase {
 
-    private static final String DATABASE_NAME = "ToDo.APP6";
+    private static final String DATABASE_NAME = "ToDo.APP7";
 
     public abstract TaiKhoanDAO taiKhoanDAO();
     public abstract GhiChuDAO ghiChuDAO();

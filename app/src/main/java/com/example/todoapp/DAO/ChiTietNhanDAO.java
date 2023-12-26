@@ -6,6 +6,7 @@ import androidx.room.Query;
 
 import com.example.todoapp.Entity.ChiTietNhan;
 import com.example.todoapp.Entity.Nhan;
+import com.example.todoapp.Entity.GhiChu;
 
 import java.util.List;
 
@@ -19,4 +20,9 @@ public interface ChiTietNhanDAO {
     long themChiTietNhan(ChiTietNhan chiTietNhan);
     @Query("DELETE FROM ChiTietNhanDAO WHERE maNhan = :maNhan AND maGhiChu = :maGhiChu")
     int xoaChiTietNhan(int maNhan, int maGhiChu);
+
+    @Query("SELECT GhiChu.* FROM GhiChu " +
+            "INNER JOIN ChiTietNhanDAO ON GhiChu.maGhiChu = ChiTietNhanDAO.maGhiChu " +
+            "WHERE ChiTietNhanDAO.maNhan = :maNhan")
+    List<GhiChu> getListGhiChuOfNhan(int maNhan);
 }

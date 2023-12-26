@@ -37,6 +37,9 @@ public interface GhiChuDAO {
 
     @Query("UPDATE GhiChu SET `order` = :newOrder WHERE maGhiChu = :maGhiChu")
     void capNhatOrder(int maGhiChu, int newOrder);
+    @Query("SELECT * FROM GhiChu WHERE UID = :taiKhoanGhiNho AND daXoa = 0 AND (LOWER(tieude) LIKE LOWER(:query) OR LOWER(noidung) LIKE LOWER(:query) OR LOWER(tieude) LIKE LOWER(:queryWithWildcard) OR LOWER(noidung) LIKE LOWER(:queryWithWildcard)) ORDER BY `order`")
+    List<GhiChu> timKiemGhiChu(String taiKhoanGhiNho, String query, String queryWithWildcard);
+
     @Delete
     int xoaGhiChu(GhiChu ghiChu);
 }
